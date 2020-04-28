@@ -1,18 +1,20 @@
-from django.urls import path, include
-
-from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView
- )
+)
 
-from api import views
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-router = DefaultRouter()
-router.register('users', views.UserViewSet, basename='User')
+from .views import ReviewViewSet, CommentViewSet, UserViewSet
 
-urlpatterns = [    
-    path('v1/', include(router.urls)),
+router_v1_api = DefaultRouter()
+router_v1_api.register('users', UserViewSet, basename='users')
+router_v1_api.register('titles/(?P<title_id>\d+)/reviews', ReviewViewSet)
+router_v1_api.register('titles/(?P<title_id>\d+)/comments', CommentViewSet)
+
+urlpatterns = [
+    path('v1/', include(router_v1_api.urls)),
     path('v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('v1/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh')
 ]
