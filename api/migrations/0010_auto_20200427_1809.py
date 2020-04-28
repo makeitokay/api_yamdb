@@ -6,23 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0009_title_rating'),
+        ("api", "0009_title_rating"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='category',
-            old_name='title',
-            new_name='name',
+            model_name="category", old_name="title", new_name="name",
         ),
-        migrations.RenameField(
-            model_name='genre',
-            old_name='title',
-            new_name='name',
-        ),
-        migrations.RenameField(
-            model_name='title',
-            old_name='title',
-            new_name='name',
-        ),
+        migrations.RenameField(model_name="genre", old_name="title", new_name="name",),
+        migrations.RenameField(model_name="title", old_name="title", new_name="name",),
     ]

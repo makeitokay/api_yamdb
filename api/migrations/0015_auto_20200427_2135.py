@@ -6,18 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0014_auto_20200427_2134'),
+        ("api", "0014_auto_20200427_2134"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='category',
-            name='slug',
-            field=models.SlugField(max_length=200),
+            model_name="category", name="slug", field=models.SlugField(max_length=200),
         ),
         migrations.AlterField(
-            model_name='genre',
-            name='slug',
-            field=models.SlugField(max_length=200),
+            model_name="genre", name="slug", field=models.SlugField(max_length=200),
         ),
     ]
