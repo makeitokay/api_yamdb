@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Category, Title, Genre
+
+from .models import Category, Genre, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -16,10 +17,23 @@ class GenreSerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
+class GenreField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = GenreSerializer(value)
+        return serializer.data
+
+
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategorySerializer(value)
+        return serializer.data
+
+
 class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(slug_field='slug', required=False, many=True, queryset=Genre.objects.all())
-    category = serializers.SlugRelatedField(slug_field='slug', required=False, queryset=Category.objects.all())
+    genre = GenreField(slug_field='slug', required=False, many=True, queryset=Genre.objects.all())
+    category = CategoryField(slug_field='slug', required=False, queryset=Category.objects.all())
 
     class Meta:
         fields = ['name', 'year', 'category', 'genre', 'rating', 'description', 'id']
         model = Title
+

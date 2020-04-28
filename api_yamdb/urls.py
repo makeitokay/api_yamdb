@@ -16,21 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
-from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
-
-from api.views import CategoryViewSet, GenreViewSet, TitleViewSet
-
-router_v1_api = DefaultRouter()
-router_v1_api.register('categories', CategoryViewSet, basename='categories')
-router_v1_api.register('genres', GenreViewSet, basename='genres')
-router_v1_api.register('titles', TitleViewSet, basename='titles')
 
 urlpatterns = [
-    path('api/v1/', include(router_v1_api.urls)),
+    path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
     path('redoc/', TemplateView.as_view(template_name='redoc.html'), name='redoc'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

@@ -1,6 +1,8 @@
-from rest_framework import filters, mixins, viewsets, status
-from .models import Category, Title, Genre
+from rest_framework import filters, mixins, status, viewsets
+
+from .models import Category, Genre, Title
 from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
+from .filters import TitleFilter
 
 
 class CategoryViewSet(mixins.CreateModelMixin,
@@ -30,9 +32,4 @@ class GenreViewSet(mixins.CreateModelMixin,
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['=genre__slug', '=category__slug', 'name', '=year']
-
-
-
-
+    filterset_class = TitleFilter
