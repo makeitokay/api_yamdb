@@ -14,12 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
-from api.views import CategoryViewSet, GenreViewSet, TitleViewSet
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
+
+from api.views import CategoryViewSet, GenreViewSet, TitleViewSet
 
 router_v1_api = DefaultRouter()
 router_v1_api.register('categories', CategoryViewSet, basename='categories')
