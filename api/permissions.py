@@ -13,3 +13,14 @@ class IsAdminOrOwner(permissions.BasePermission):
 class IsAdminOrModeratorOrOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user.role == "admin" or request.user.is_superuser
+
+
+class ReviewPermissions(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        if request.method in permissions.SAFE_METHODS or user.role == 'admin' or user.is_superuser:
+            return True
+        if request.method == 'DELETE' and user.role == 'moderator':
+            return True
+
+        return user == obj.author

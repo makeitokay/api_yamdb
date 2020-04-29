@@ -48,7 +48,7 @@ class TitleSerializer(serializers.ModelSerializer):
 User = get_user_model()
 
 
-class UserSerializert(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
@@ -77,6 +77,20 @@ class ReviewSerializer(serializers.ModelSerializer):
             "author",
             "pub_date",
         )
+
+    def validate_score(self, value):
+        if value > 10 or value < 1:
+            raise serializers.ValidationError('Invalid score')
+        return value
+
+    def validate(self, attrs):
+        request = self.context['request']
+        user = request.user
+        if request.method == 'POST' and user.is_authenticated:
+            title_id = self.context['view'].kwargs.get('title_id')
+            if Review.objects.filter(author=request.user, title_id=title_id).exists():
+                raise serializers.ValidationError('Review already exists')
+        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):

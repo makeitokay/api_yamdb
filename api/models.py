@@ -28,13 +28,20 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    title = models.ForeignKey("Title", on_delete=models.CASCADE, related_name="reviews")
+    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="reviews")
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
     )
     text = models.TextField(verbose_name="текст отзыва")
     score = models.PositiveSmallIntegerField(verbose_name="оценка произведения")
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        all_scores = Review.objects.filter(title=self.title).values_list('score', flat=True)
+        self.title.rating = round(sum(all_scores) / len(all_scores), 1)
+        self.title.save()
 
 
 class Comment(models.Model):
