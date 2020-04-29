@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 
 from api import serializers
@@ -27,6 +27,13 @@ class CategoryViewSet(
     search_fields = ["=slug", "name"]
     lookup_field = "slug"
 
+    def get_permissions(self):
+        if self.action in ('list',):
+            permission_classes = (AllowAny,)
+        else:
+            permission_classes = (IsAuthenticated, IsAdminUser,)
+        return [permission() for permission in permission_classes]
+
 
 class GenreViewSet(
     mixins.CreateModelMixin,
@@ -40,11 +47,25 @@ class GenreViewSet(
     search_fields = ["=slug", "name"]
     lookup_field = "slug"
 
+    def get_permissions(self):
+        if self.action in ('list',):
+            permission_classes = (AllowAny,)
+        else:
+            permission_classes = (IsAuthenticated, IsAdminUser,)
+        return [permission() for permission in permission_classes]
+
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filterset_class = TitleFilter
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            permission_classes = (AllowAny,)
+        else:
+            permission_classes = (IsAuthenticated, IsAdminUser,)
+        return [permission() for permission in permission_classes]
 
 
 User = get_user_model()
