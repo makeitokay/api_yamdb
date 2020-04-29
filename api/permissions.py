@@ -24,3 +24,7 @@ class ReviewPermissions(permissions.BasePermission):
             return True
 
         return user == obj.author
+
+
+class CommentPermissions(ReviewPermissions):
+    pass

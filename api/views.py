@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.models import Comment, Review
-from api.permissions import IsAdminOrOwner, ReviewPermissions
+from api.permissions import IsAdminOrOwner, ReviewPermissions, CommentPermissions
 from api.serializers import CommentSerializer, ReviewSerializer
 
 from .filters import TitleFilter
@@ -102,11 +102,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (CommentPermissions, IsAuthenticatedOrReadOnly)
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get('pk'), title__id=self.kwargs.get('title_id'))
-        return review.comments
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'), title__id=self.kwargs.get('title_id'))
+        return review.comments.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
-        serializer.save(author=self.request.user, title=title)
+        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
+        serializer.save(author=self.request.user, review=review)
