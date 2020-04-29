@@ -46,3 +46,6 @@ class UserViewSet(viewsets.ModelViewSet):
         if username == 'me':
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
+
+
+ 
