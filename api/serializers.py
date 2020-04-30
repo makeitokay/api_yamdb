@@ -5,6 +5,7 @@ from api.models import Comment, Review
 
 from .models import Category, Genre, Title
 
+User = get_user_model()
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,9 +44,6 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ["name", "year", "category", "genre", "rating", "description", "id"]
         model = Title
-
-
-User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 from auth import views as auth_views
 from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
-                    ReviewViewSet, TitleViewSet, UserViewSet)
+                    ReviewViewSet, TitleViewSet, UserViewSet, SelfUserRetrive)
 
 router_v1_api = DefaultRouter()
 router_v1_api.register("categories", CategoryViewSet, basename="categories")
@@ -19,6 +19,7 @@ router_v1_api.register(
 )
 
 urlpatterns = [
+    path('v1/users/me/', SelfUserRetrive.as_view()),
     path("v1/", include(router_v1_api.urls)),
     path('v1/auth/email/', auth_views.AuthView.as_view(), ),
     path('v1/auth/token/', auth_views.YamdbTokenObtainView.as_view()), 
