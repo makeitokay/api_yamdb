@@ -32,6 +32,5 @@ class AuthView(APIView):
         from hashlib import sha256
         user.confirmation_code = sha256(confirmation_code.encode()).hexdigest()
         user.save()
- 
-
+                
         return Response(status=status.HTTP_200_OK)

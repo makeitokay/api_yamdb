@@ -1,20 +1,24 @@
 from django.contrib.auth import authenticate
+from django.utils.translation import ugettext_lazy as _
 
-from rest_framework.serializers import CharField
-from rest_framework_simplejwt.serializers import TokenObtainSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import serializers
 
-class YamdbTokenObtainSerializer(TokenObtainSerializer):
+from rest_framework_simplejwt.serializers import PasswordField, RefreshToken
+from rest_framework_simplejwt.state import User
+
+
+class YamdbTokenObtainSerializer(serializers.Serializer):
+    username_field = User.USERNAME_FIELD
+
+    default_error_messages = {
+        'no_active_account': _('No active account found with the given credentials')
+    }
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):           
         super().__init__(*args, **kwargs)
 
-        del self.fields['password']
-        self.fields['confirmation_code'] = CharField()
-
-    @classmethod
-    def get_token(cls, user):
-        return RefreshToken.for_user(user)
+        self.fields[self.username_field] = serializers.CharField()
+        self.fields['confirmation_code'] = PasswordField()
 
     def validate(self, attrs):
         authenticate_kwargs = {
@@ -25,15 +29,17 @@ class YamdbTokenObtainSerializer(TokenObtainSerializer):
             authenticate_kwargs['request'] = self.context['request']
         except KeyError:
             pass
+
         user = authenticate(**authenticate_kwargs)
 
         if user is None:
             return self.default_error_messages
-
-        refresh = self.get_token(user)
+        
+        refresh = RefreshToken.for_user(user)
+        token = refresh.access_token
 
         data = dict({
-            'token': str(refresh.access_token)
+            'token': str(token)
         })
 
         return data

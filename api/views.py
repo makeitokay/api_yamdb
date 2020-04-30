@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, mixins, status, viewsets, views
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -13,6 +13,9 @@ from api.serializers import CommentSerializer, ReviewSerializer
 from .filters import TitleFilter
 from .models import Category, Genre, Title
 from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
+
+
+User = get_user_model()
 
 
 class CategoryViewSet(
@@ -47,9 +50,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
 
-User = get_user_model()
-
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
@@ -66,25 +66,20 @@ class UserViewSet(viewsets.ModelViewSet):
             permission_classes = (IsAuthenticated, IsAdminOrOwner)
         return [permission() for permission in permission_classes]
 
-    def retrieve(self, request, username=None):
-        if username == "me":
-            serializer = self.get_serializer(request.user)
-            return Response(serializer.data)
-        return super().retrieve(request, username)
 
-    def partial_update(self, request, username=None, *args, **kwargs):
-        if username == "me":
-            user = request.user
-            serializer = self.get_serializer(user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            return Response(serializer.data)
-        return super().partial_update(request, *args, **kwargs)
+class SelfUserRetrive(views.APIView):
+    
+    permission_classes = (IsAuthenticated, )
 
-    def destroy(self, request, username=None, *args, **kwargs):
-        if username == "me":
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().destroy(request, *args, **kwargs)
+    def get(self, request):
+        serializer = serializers.UserSerializer(request.user)
+        return Response(serializer.data)
+    
+    def patch(self, request):
+        serializer = serializers.UserSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)    
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
