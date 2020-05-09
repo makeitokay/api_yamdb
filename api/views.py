@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.models import Comment, Review
-from api.permissions import ReviewPermissions, CommentPermissions, UserPermissions, DenyRoleChanging
+from api.permissions import ReviewPermissions, CommentPermissions, DenyRoleChanging, IsYamdbAdminUser
 from api.serializers import CommentSerializer, ReviewSerializer
 
 from .filters import TitleFilter
@@ -75,7 +75,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (IsAuthenticated, UserPermissions, )
+    permission_classes = (IsAuthenticated, IsYamdbAdminUser, )
     lookup_field = 'username'
 
 
@@ -95,7 +95,7 @@ class UserSelfView(views.APIView):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (ReviewPermissions, IsAuthenticatedOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly, ReviewPermissions)
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
@@ -108,7 +108,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (CommentPermissions, IsAuthenticatedOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly, CommentPermissions)
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'), title__id=self.kwargs.get('title_id'))
