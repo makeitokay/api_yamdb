@@ -19,7 +19,6 @@ router_v1_api.register(
 )
 
 urlpatterns = [
-    path('v1/users/me/', SelfUserRetrive.as_view()),
     path("v1/", include(router_v1_api.urls)),
     path('v1/auth/email/', auth_views.AuthView.as_view(), ),
     path('v1/auth/token/', auth_views.YamdbTokenObtainView.as_view()), 
