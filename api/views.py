@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.models import Comment, Review
-from api.permissions import IsAdminOrOwner, ReviewPermissions, CommentPermissions, UserPermissions
+from api.permissions import ReviewPermissions, CommentPermissions, UserPermissions
 from api.serializers import CommentSerializer, ReviewSerializer
 
 from .filters import TitleFilter
