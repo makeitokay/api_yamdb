@@ -171,5 +171,5 @@ REST_FRAMEWORK = {
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'auth.backends.YamdbAuthBackend',
+    'users.backends.YamdbAuthBackend',
 ]

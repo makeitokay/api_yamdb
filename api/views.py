@@ -7,16 +7,14 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.models import Comment, Review
-from api.permissions import IsAdminOrOwner, ReviewPermissions, CommentPermissions
+from api.permissions import IsAdminOrOwner, ReviewPermissions, CommentPermissions, UserPermissions
 from api.serializers import CommentSerializer, ReviewSerializer
 
 from .filters import TitleFilter
 from .models import Category, Genre, Title
 from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
 
-import logging
 
-logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
@@ -77,32 +75,23 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     pagination_class = PageNumberPagination
+    permission_classes = (IsAuthenticated, UserPermissions, )
     lookup_field = 'username'
 
-    def get_permissions(self):
-        if self.action in ('list', 'create'):
-            permission_classes = (
-                IsAuthenticated,
-                IsAdminUser,
-            )
-        elif self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
-            permission_classes = (
-                IsAuthenticated, 
-                IsAdminOrOwner,
-                )
-        return [permission() for permission in permission_classes]
 
-    def get_object(self):
-        if self.kwargs['username'] == 'me':
-            return self.request.user
-
-        return super().get_object()
-
-    def destroy(self, request, *args, **kwargs):
-        if self.kwargs['username'] == 'me':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+class SelfUserRetrive(views.APIView):
         
-        return super().destroy(request, *args, **kwargs)
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        serializer = serializers.UserSerializer(request.user)
+        return Response(serializer.data)
+    
+    def patch(self, request):
+        serializer = serializers.UserSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)    
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

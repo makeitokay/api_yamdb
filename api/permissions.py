@@ -10,9 +10,22 @@ class IsAdminOrOwner(permissions.BasePermission):
         )
 
 
-class IsAdminOrModeratorOrOwner(permissions.BasePermission):
+class UserPermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if view.action in ('list', 'create', 'destroy'):
+            return bool (
+                request.user.role == 'admin'
+                or request.user.is_superuser
+            )
+        
+        return True
+    
     def has_object_permission(self, request, view, obj):
-        return request.user.role == "admin" or request.user.is_superuser
+        return bool (
+                obj == request.user
+                or request.user.role == 'admin'
+                or request.user.is_superuser
+            )
 
 
 class ReviewPermissions(permissions.BasePermission):
