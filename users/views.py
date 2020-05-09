@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 
@@ -29,8 +30,7 @@ class AuthView(APIView):
             (user.email, ),
             fail_silently=False
         )
-        from hashlib import sha256
-        user.confirmation_code = sha256(confirmation_code.encode()).hexdigest()
+        user.confirmation_code = make_password(confirmation_code)
         user.save()
                 
         return Response(status=status.HTTP_200_OK)

@@ -4,11 +4,9 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import PasswordField, RefreshToken
-from rest_framework_simplejwt.state import User
 
 
 class YamdbTokenObtainSerializer(serializers.Serializer):
-    username_field = User.USERNAME_FIELD
 
     default_error_messages = {
         'no_active_account': _('No active account found with the given credentials')
@@ -17,12 +15,12 @@ class YamdbTokenObtainSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):           
         super().__init__(*args, **kwargs)
 
-        self.fields[self.username_field] = serializers.CharField()
+        self.fields['email'] = serializers.CharField()
         self.fields['confirmation_code'] = PasswordField()
 
     def validate(self, attrs):
         authenticate_kwargs = {
-            self.username_field: attrs[self.username_field],
+            'email': attrs['email'],
             'confirmation_code': attrs['confirmation_code'],
         }
         try:
