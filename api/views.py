@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.models import Comment, Review
-from api.permissions import ReviewPermissions, CommentPermissions, UserPermissions
+from api.permissions import ReviewPermissions, CommentPermissions, UserPermissions, DenyRoleChanging
 from api.serializers import CommentSerializer, ReviewSerializer
 
 from .filters import TitleFilter
@@ -79,9 +79,8 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
 
-class SelfUserRetrive(views.APIView):
-        
-    permission_classes = (IsAuthenticated, )
+class UserSelfView(views.APIView):   
+    permission_classes = (IsAuthenticated, DenyRoleChanging, )
 
     def get(self, request):
         serializer = serializers.UserSerializer(request.user)

@@ -12,12 +12,23 @@ class UserPermissions(permissions.BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj):
-        return (
-            obj == request.user
-            or request.user.role == "admin"
+        return bool (
+            request.user.role == "admin"
             or request.user.is_superuser
+            or (
+                 obj == request.user 
+                 and request.data.get('role') == 'user'
+            )
         )
+            
 
+class DenyRoleChanging(permissions.BasePermission):
+    def has_permission(self, request, view):
+        role = request.data.get('role', None)
+        return bool(
+            role is None 
+            or request.user.role == role
+        )
 
 class ReviewPermissions(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
