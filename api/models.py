@@ -39,7 +39,9 @@ class Review(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        all_scores = Review.objects.filter(title=self.title).values_list('score', flat=True)
+        all_scores = Review.objects.filter(title=self.title).values_list(
+            "score", flat=True
+        )
         self.title.rating = round(sum(all_scores) / len(all_scores), 1)
         self.title.save()
 

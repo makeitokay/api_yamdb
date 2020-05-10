@@ -1,11 +1,10 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from api.models import Comment, Review
-
-from .models import Category, Genre, Title
+from api.models import Comment, Review, Category, Genre, Title
 
 User = get_user_model()
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,17 +77,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_score(self, value):
         if value > 10 or value < 1:
-            raise serializers.ValidationError('Invalid score')
+            raise serializers.ValidationError("Invalid score")
         return value
-
-    def validate(self, attrs):
-        request = self.context['request']
-        user = request.user
-        if request.method == 'POST' and user.is_authenticated:
-            title_id = self.context['view'].kwargs.get('title_id')
-            if Review.objects.filter(author=request.user, title_id=title_id).exists():
-                raise serializers.ValidationError('Review already exists')
-        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):

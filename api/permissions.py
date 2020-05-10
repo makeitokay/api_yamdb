@@ -4,7 +4,7 @@ from rest_framework import permissions
 def _is_admin_user(user):
     if not user.is_authenticated:
         return False
-    return user.role == 'admin' or user.is_superuser
+    return user.role == "admin" or user.is_superuser
 
 
 class IsYamdbAdminUser(permissions.BasePermission):
