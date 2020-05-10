@@ -33,3 +33,22 @@ class ReviewPermissions(permissions.BasePermission):
 
 class CommentPermissions(ReviewPermissions):
     pass
+
+
+class CategoryPermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if _is_admin_user(user):
+            return True
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return False
+
+
+class GenrePermissions(CategoryPermissions):
+    pass
+
+
+class TitlePermissions(CategoryPermissions):
+    pass

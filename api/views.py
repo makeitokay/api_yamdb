@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.models import Comment, Review
-from api.permissions import ReviewPermissions, CommentPermissions, DenyRoleChanging, IsYamdbAdminUser
+from api.permissions import ReviewPermissions, CommentPermissions, DenyRoleChanging, IsYamdbAdminUser, CategoryPermissions, GenrePermissions, TitlePermissions
 from api.serializers import CommentSerializer, ReviewSerializer
 
 from .filters import TitleFilter
@@ -26,16 +26,10 @@ class CategoryViewSet(
 ):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (CategoryPermissions,)
     filter_backends = [filters.SearchFilter]
     search_fields = ["=slug", "name"]
     lookup_field = "slug"
-
-    def get_permissions(self):
-        if self.action in ('list',):
-            permission_classes = (AllowAny,)
-        else:
-            permission_classes = (IsAuthenticated, IsAdminUser,)
-        return [permission() for permission in permission_classes]
 
 
 class GenreViewSet(
@@ -46,30 +40,18 @@ class GenreViewSet(
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (GenrePermissions,)
     filter_backends = [filters.SearchFilter]
     search_fields = ["=slug", "name"]
     lookup_field = "slug"
-
-    def get_permissions(self):
-        if self.action in ('list',):
-            permission_classes = (AllowAny,)
-        else:
-            permission_classes = (IsAuthenticated, IsAdminUser,)
-        return [permission() for permission in permission_classes]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    permission_classes = (TitlePermissions,)
     filterset_class = TitleFilter
 
-    def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
-            permission_classes = (AllowAny,)
-        else:
-            permission_classes = (IsAuthenticated, IsAdminUser,)
-        return [permission() for permission in permission_classes]
-    
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
