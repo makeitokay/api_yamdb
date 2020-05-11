@@ -10,7 +10,7 @@ class YamdbAuthBackend(ModelBackend):
         try:
             confirmation_code = request.data["confirmation_code"]
             user = User.objects.get(email=kwargs["email"])
-            if check_password(confirmation_code, user.confirmation_code):
+            if check_password(confirmation_code, user.confirmation_code.code):
                 return user
         except:
             pass

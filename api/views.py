@@ -6,6 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from users.serializers import UserSerializer
+
 from api import serializers
 from api.models import Review, Category, Genre, Title
 from api.permissions import (
@@ -59,7 +61,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
+    serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     permission_classes = (
         IsAuthenticated,
@@ -75,11 +77,11 @@ class UserSelfView(views.APIView):
     )
 
     def get(self, request):
-        serializer = serializers.UserSerializer(request.user)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
     def patch(self, request):
-        serializer = serializers.UserSerializer(
+        serializer = UserSerializer(
             request.user, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)

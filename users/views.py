@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from users.serializers import YamdbTokenObtainSerializer
+from users.models import UserConfirmationCode
 
 User = get_user_model()
 
@@ -30,7 +31,11 @@ class AuthView(APIView):
             (user.email,),
             fail_silently=False,
         )
-        user.confirmation_code = make_password(confirmation_code)
-        user.save()
+        try:
+            user_confirmation_code = UserConfirmationCode.objects.get(user=user)
+        except UserConfirmationCode.DoesNotExist:
+            user_confirmation_code = UserConfirmationCode(user=user)
+        user_confirmation_code.code = make_password(confirmation_code)
+        user_confirmation_code.save()
 
         return Response(status=status.HTTP_200_OK)

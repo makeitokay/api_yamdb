@@ -1,9 +1,23 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
 from rest_framework_simplejwt.serializers import PasswordField, RefreshToken
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = (
+            "first_name",
+            "last_name",
+            "username",
+            "bio",
+            "email",
+            "role",
+        )
 
 
 class YamdbTokenObtainSerializer(serializers.Serializer):
@@ -39,3 +53,4 @@ class YamdbTokenObtainSerializer(serializers.Serializer):
         data = dict({"token": str(token)})
 
         return data
+        
