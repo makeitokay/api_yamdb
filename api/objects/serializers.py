@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from api.models import Comment, Review, Category, Genre, Title
+from api.objects.models import Category, Genre, Title
 
 User = get_user_model()
 
@@ -43,38 +43,3 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ["name", "year", "category", "genre", "rating", "description", "id"]
         model = Title
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
-
-    class Meta:
-        fields = (
-            "id",
-            "text",
-            "author",
-            "score",
-            "pub_date",
-        )
-        model = Review
-        read_only_fields = (
-            "author",
-            "pub_date",
-        )
-
-    def validate_score(self, value):
-        if value > 10 or value < 1:
-            raise serializers.ValidationError("Invalid score")
-        return value
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(slug_field="username", read_only=True)
-
-    class Meta:
-        fields = ("id", "text", "author", "pub_date")
-        model = Comment
-        read_only_fields = (
-            "author",
-            "pub_date",
-        )

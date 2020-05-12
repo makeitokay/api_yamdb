@@ -1,5 +1,6 @@
-from django.conf import settings
 from django.db import models
+
+from api.activity.models import Review
 
 
 class Category(models.Model):
@@ -25,7 +26,7 @@ class Title(models.Model):
     description = models.CharField(max_length=400, null=True, blank=True, verbose_name="Описание произведения")
     year = models.IntegerField(null=True, blank=True, verbose_name="Год произведения")
     category = models.ForeignKey(
-        Category,
+        "Category",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -35,32 +36,10 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre, related_name="genre", verbose_name="Жанр произведения")
 
     class Meta:
-        verbose_name = 'Произведения'
-        verbose_name_plural = 'Произведение'
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
     @property
     def rating(self):
         all_scores = Review.objects.filter(title=self).values_list('score', flat=True)
         return round(sum(all_scores) / len(all_scores), 1) if len(all_scores) != 0 else None
-
-
-class Review(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="reviews")
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
-    )
-    text = models.TextField(verbose_name="текст отзыва")
-    score = models.PositiveSmallIntegerField(verbose_name="оценка произведения")
-    pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
-
-
-class Comment(models.Model):
-    review = models.ForeignKey(
-        "Review", on_delete=models.CASCADE, related_name="comments"
-    )
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
-    )
-    text = models.TextField(verbose_name="текст комментария")
-    pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
-

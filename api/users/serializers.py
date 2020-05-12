@@ -21,7 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class YamdbTokenObtainSerializer(serializers.Serializer):
-
     default_error_messages = {
         "no_active_account": _("No active account found with the given credentials")
     }
@@ -53,4 +52,3 @@ class YamdbTokenObtainSerializer(serializers.Serializer):
         data = dict({"token": str(token)})
 
         return data
-        

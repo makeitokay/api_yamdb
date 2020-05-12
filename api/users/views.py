@@ -3,13 +3,16 @@ from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
+from rest_framework import status, viewsets, views
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from users.serializers import YamdbTokenObtainSerializer
-from users.models import UserConfirmationCode
+from api.users.permissions import IsYamdbAdminUser, DenyRoleChanging
+from api.users.serializers import YamdbTokenObtainSerializer, UserSerializer
+from api.users.models import UserConfirmationCode
 
 User = get_user_model()
 
@@ -39,3 +42,33 @@ class AuthView(APIView):
         user_confirmation_code.save()
 
         return Response(status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = (
+        IsAuthenticated,
+        IsYamdbAdminUser,
+    )
+    lookup_field = "username"
+
+
+class UserSelfView(views.APIView):
+    permission_classes = (
+        IsAuthenticated,
+        DenyRoleChanging,
+    )
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        serializer = UserSerializer(
+            request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

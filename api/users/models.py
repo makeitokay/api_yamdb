@@ -3,7 +3,7 @@ from django.db import models
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from users.managers import YamdbUserManager
+from api.users.managers import YamdbUserManager
 
 
 class YamdbUser(AbstractUser):
@@ -11,10 +11,10 @@ class YamdbUser(AbstractUser):
     ROLES = (("user", "user"), ("moderator", "moderator"), ("admin", "admin"))
     bio = models.TextField(_("biography"), blank=True, null=True)
     role = models.CharField(
-                            _("role"),
-                            choices=ROLES,
-                            default="user",
-                            max_length=10
+        _("role"),
+        choices=ROLES,
+        default="user",
+        max_length=10
     )
 
     objects = YamdbUserManager()
@@ -22,8 +22,8 @@ class YamdbUser(AbstractUser):
 
 class UserConfirmationCode(models.Model):
     user = models.OneToOneField(
-                                YamdbUser,
-                                models.CASCADE,
-                                related_name="confirmation_code"
+        "YamdbUser",
+        models.CASCADE,
+        related_name="confirmation_code"
     )
     code = models.CharField(max_length=255, blank=True, null=True)
