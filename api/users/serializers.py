@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
@@ -6,8 +7,20 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import PasswordField, RefreshToken
 
 
-class YamdbTokenObtainSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = (
+            "first_name",
+            "last_name",
+            "username",
+            "bio",
+            "email",
+            "role",
+        )
 
+
+class YamdbTokenObtainSerializer(serializers.Serializer):
     default_error_messages = {
         "no_active_account": _("No active account found with the given credentials")
     }
