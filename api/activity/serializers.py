@@ -20,11 +20,6 @@ class ReviewSerializer(serializers.ModelSerializer):
             "pub_date",
         )
 
-    def validate_score(self, value):
-        if value > 10 or value < 1:
-            raise serializers.ValidationError("Invalid score")
-        return value
-
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field="username", read_only=True)

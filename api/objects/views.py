@@ -4,7 +4,11 @@ from rest_framework import filters
 from api.objects import serializers
 from api.objects.filters import TitleFilter
 from api.objects.models import Category, Genre, Title
-from api.objects.permissions import TitlePermissions, GenrePermissions, CategoryPermissions
+from api.objects.permissions import (
+    TitlePermissions,
+    GenrePermissions,
+    CategoryPermissions,
+)
 
 
 class CategoryViewSet(

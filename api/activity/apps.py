@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class ActivityConfig(AppConfig):
-    name = 'api.activity'
+    name = "api.activity"

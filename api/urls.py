@@ -7,7 +7,9 @@ from api.objects import views as objects_views
 from api.activity import views as activity_views
 
 router_v1_api = DefaultRouter()
-router_v1_api.register("categories", objects_views.CategoryViewSet, basename="categories")
+router_v1_api.register(
+    "categories", objects_views.CategoryViewSet, basename="categories"
+)
 router_v1_api.register("genres", objects_views.GenreViewSet, basename="genres")
 router_v1_api.register("titles", objects_views.TitleViewSet, basename="titles")
 router_v1_api.register("users", users_views.UserViewSet, basename="users")
