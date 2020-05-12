@@ -28,7 +28,8 @@ class CategoryViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    serializer_class\
+        = CategorySerializer
     permission_classes = (CategoryPermissions,)
     filter_backends = [filters.SearchFilter]
     search_fields = ["=slug", "name"]
