@@ -1,22 +1,25 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, status, views, viewsets
+from rest_framework import filters, mixins, views, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
-from api import serializers
-from api.models import Comment, Review
-from api.permissions import (CategoryPermissions, CommentPermissions,
-                             DenyRoleChanging, GenrePermissions,
-                             IsYamdbAdminUser, ReviewPermissions,
-                             TitlePermissions)
-from api.serializers import CommentSerializer, ReviewSerializer
+from users.serializers import UserSerializer
 
-from .filters import TitleFilter
-from .models import Category, Genre, Title
-from .serializers import CategorySerializer, GenreSerializer, TitleSerializer
+from api import serializers
+from api.models import Review, Category, Genre, Title
+from api.permissions import (
+    CategoryPermissions,
+    CommentPermissions,
+    DenyRoleChanging,
+    GenrePermissions,
+    IsYamdbAdminUser,
+    ReviewPermissions,
+    TitlePermissions,
+)
+from api.filters import TitleFilter
 
 User = get_user_model()
 
@@ -28,8 +31,7 @@ class CategoryViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Category.objects.all()
-    serializer_class\
-        = CategorySerializer
+    serializer_class = serializers.CategorySerializer
     permission_classes = (CategoryPermissions,)
     filter_backends = [filters.SearchFilter]
     search_fields = ["=slug", "name"]
@@ -43,7 +45,7 @@ class GenreViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
+    serializer_class = serializers.GenreSerializer
     permission_classes = (GenrePermissions,)
     filter_backends = [filters.SearchFilter]
     search_fields = ["=slug", "name"]
@@ -52,35 +54,43 @@ class GenreViewSet(
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    serializer_class = serializers.TitleSerializer
     permission_classes = (TitlePermissions,)
     filterset_class = TitleFilter
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
+    serializer_class = UserSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (IsAuthenticated, IsYamdbAdminUser, )
-    lookup_field = 'username'
+    permission_classes = (
+        IsAuthenticated,
+        IsYamdbAdminUser,
+    )
+    lookup_field = "username"
 
 
-class UserSelfView(views.APIView):   
-    permission_classes = (IsAuthenticated, DenyRoleChanging, )
+class UserSelfView(views.APIView):
+    permission_classes = (
+        IsAuthenticated,
+        DenyRoleChanging,
+    )
 
     def get(self, request):
-        serializer = serializers.UserSerializer(request.user)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data)
-    
+
     def patch(self, request):
-        serializer = serializers.UserSerializer(request.user, data=request.data, partial=True)
+        serializer = UserSerializer(
+            request.user, data=request.data, partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)    
+        return Response(serializer.data)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
+    serializer_class = serializers.ReviewSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, ReviewPermissions)
 
     def get_queryset(self):
@@ -88,16 +98,23 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        title_id = self.kwargs.get("title_id")
+        if Review.objects.filter(author=self.request.user, title_id=title_id).exists():
+            raise ValidationError("Review already exists")
+        title = get_object_or_404(Title, pk=title_id)
         serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
+    serializer_class = serializers.CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, CommentPermissions)
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'), title__id=self.kwargs.get('title_id'))
+        review = get_object_or_404(
+            Review,
+            pk=self.kwargs.get("review_id"),
+            title__id=self.kwargs.get("title_id"),
+        )
         return review.comments.all()
 
     def perform_create(self, serializer):
